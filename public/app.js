@@ -9,7 +9,7 @@ let fetchAndUpdate = () => {
       msgListUL.innerHTML = '';
       parsed.forEach(elem => {
         let li = document.createElement('li');
-        li.innerHTML = `${elem.msg}<h5 style="color:${elem.color}">${
+        li.innerHTML = `<img src="${elem.path}" width="200px"/><div>${elem.msg}</div><h5 style="color:${elem.color}">${
           elem.user
         }</h5>`;
         msgListUL.append(li);
