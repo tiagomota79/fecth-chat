@@ -2,7 +2,10 @@ let express = require('express');
 let app = express();
 let cookieParser = require('cookie-parser');
 let multer = require('multer');
-let upload = multer();
+let upload = multer({
+  dest: __dirname + '/uploads/',
+});
+app.use('/images', express.static(__dirname + '/uploads'));
 app.use(cookieParser());
 let passwordsAssoc = {};
 let sessions = {};
@@ -11,14 +14,17 @@ app.use('/static', express.static(__dirname + '/public'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
-app.post('/messages', upload.none(), (req, res) => {
+app.post('/messages', upload.single('image'), (req, res) => {
   console.log('POST messages body', req.body);
+  let file = req.file;
+  let frontendPath = '/images/' + file.filename;
   let user = sessions[req.cookies['sid']];
   let newMessage = {
     user: user,
     msg: req.body.message,
     color: passwordsAssoc[user].color,
     time: Date.now(),
+    path: frontendPath,
   };
   messages.push(newMessage);
   res.sendFile(__dirname + '/public/chat.html');
@@ -42,7 +48,7 @@ app.post('/signup', upload.none(), (req, res) => {
         <div>Enter your username</div>
         <input type="text" name="username"></input>
         <div>Enter your password</div>
-        <input type="text" name="password"></input>
+        <input type="password" name="password"></input>
         <div>Which color would you like your username to be?</div>
         <input type="radio" name="color" value="red"><label style="color:red">Red</label></input>
         <input type="radio" name="color" value="pink"><label style="color:pink">Pink</label></input>
@@ -64,7 +70,7 @@ app.post('/signup', upload.none(), (req, res) => {
     <div>Username</div>
     <input type="text" name="username"></input>
     <div>Password</div>
-    <input type="text" name="password"></input>
+    <input type="password" name="password"></input>
     <input type="submit" value="log me in!"></input>   
   </form>
   </body>
@@ -82,7 +88,7 @@ app.post('/login', upload.none(), (req, res) => {
     <div>Username</div>
     <input type="text" name="username"></input>
     <div>Password</div>
-    <input type="text" name="password"></input>
+    <input type="password" name="password"></input>
     <input type="submit" value="log me in!"></input>   
     </form>
     </body>
